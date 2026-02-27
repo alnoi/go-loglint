@@ -1,0 +1,27 @@
+rules:
+  lowercase: true
+  englishOnly: true
+  noEmoji: true
+  sensitive: true
+
+sensitive:
+  patterns:
+    - password
+    - passwd
+    - token
+    - api_key
+    - apikey
+    - secret
+    - private_key
+    - session
+    - cookie
+    - authorization
+  allowlist: []
+
+logAPIs:
+  - packagePath: "log/slog"
+    methods: ["Debug", "Info", "Warn", "Error"]
+
+exclude:
+  paths: []
+  files: []

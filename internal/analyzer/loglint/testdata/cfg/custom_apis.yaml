@@ -1,0 +1,23 @@
+rules:
+  lowercase: true
+  englishOnly: true
+  noEmoji: true
+  sensitive: true
+
+sensitive:
+  patterns:
+    - password
+    - token
+    - secret
+  allowlist: []
+
+logAPIs:
+  - packagePath: "log/slog"
+    methods: ["Debug", "Info", "Warn", "Error"]
+
+  - packagePath: "log"
+    methods: ["Print", "Printf", "Println", "Fatal", "Fatalf", "Fatalln", "Panic", "Panicf", "Panicln"]
+
+exclude:
+  paths: []
+  files: []

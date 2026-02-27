@@ -1,0 +1,12 @@
+version: "2"
+
+linters:
+  default: none
+  enable:
+    - loglint
+  settings:
+    custom:
+      loglint:
+        path: ./loglint.so
+        description: Selectel log message linter
+        # settings: {}  # можно позже, когда начнёшь читать conf

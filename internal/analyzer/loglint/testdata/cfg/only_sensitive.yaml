@@ -1,0 +1,28 @@
+rules:
+  lowercase: false
+  englishOnly: false
+  noEmoji: false
+  sensitive: true
+
+sensitive:
+  patterns:
+    - password
+    - token
+    - api_key
+    - secret
+    - private_key
+  allowlist:
+    - tokenbucket
+    - tokenized
+    - secretariat
+
+logAPIs:
+  - packagePath: "log/slog"
+    methods: ["Debug", "Info", "Warn", "Error"]
+
+  - packagePath: "log"
+    methods: ["Print", "Printf", "Println", "Fatal", "Fatalf", "Fatalln", "Panic", "Panicf", "Panicln"]
+
+exclude:
+  paths: []
+  files: []

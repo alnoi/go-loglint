@@ -1,0 +1,17 @@
+rules:
+  lowercase: true
+  englishOnly: true
+  noEmoji: true
+  sensitive: true
+
+sensitive:
+  patterns: ["password", "token", "secret", "apikey"]
+  allowlist: []
+
+exclude:
+  paths: ["vendor/"]
+  files: ["*.pb.go", "*_gen.go"]
+
+logAPIs:
+  - packagePath: "log/slog"
+    methods: ["Debug", "Info", "Warn", "Error"]
