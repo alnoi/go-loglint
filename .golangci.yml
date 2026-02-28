@@ -10,7 +10,7 @@ linters:
         path: ./loglint.so
         description: Selectel log message linter
         settings:
-          configPath: ./loglint.yml
+          configPath: ./loglint.yaml
           rules:
             lowercase: true
             englishOnly: true

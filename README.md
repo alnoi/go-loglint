@@ -99,7 +99,7 @@ linters:
         path: ./loglint.so
         description: Selectel log message linter
         settings:
-          configPath: ./loglint.yml
+          configPath: ./loglint.yaml
           rules:
             lowercase: true
             englishOnly: true
@@ -157,7 +157,7 @@ linters-settings:
 Правила merge:
 
 - Значения из внешнего файла **перекрывают дефолтные**.
-- Если одновременно заданы поля в `.golangci.yml` и во внешнем YAML — приоритет имеет внешний файл.
+- Если одновременно заданы поля в `.golangci.yml` и во внешнем YAML — приоритет имеет `.golangci.yml`.
 - Если какие-то поля отсутствуют — используются дефолтные значения.
 
 ---

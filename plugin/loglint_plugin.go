@@ -1,5 +1,7 @@
 package main
 
+// TODO: suggestions, duplicated level content
+
 import (
 	"errors"
 
@@ -41,7 +43,7 @@ func New(conf any) ([]*analysis.Analyzer, error) {
 		return nil, err
 	}
 	if len(b) != 0 {
-		if err := yaml.Unmarshal(b, &cfg); err != nil {
+		if err := yaml.Unmarshal(b, cfg); err != nil {
 			return nil, err
 		}
 	}
