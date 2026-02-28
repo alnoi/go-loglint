@@ -20,7 +20,11 @@ func (r *Repo) login(u User, z *zap.Logger) {
 
 	r.users = append(r.users, &u)
 
-	slog.Info("auth successes with user", u.Email, u.Password, u.Token)
+	slog.Info("auth successes with user",
+		"email", u.Email,
+		"password", u.Password,
+		"token", u.Token,
+	)
 
 	z.Info("login ended 🥳")
 }
