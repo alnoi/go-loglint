@@ -1,26 +1,33 @@
 package main
 
 import (
-	"fmt"
 	"log/slog"
 
 	"go.uber.org/zap"
 )
 
-func main() {
-	logger := zap.NewNop()
+type Repo struct {
+	users []*User
+}
+type User struct {
+	Email    string
+	Password string
+	Token    string
+}
 
-	logger.Info("Hello World")
-	logger.Info("hello World")
-	slog.Info(fmt.Sprintf("%s", "Hello"))
-	slog.Info("A" + "b")
-	const f = "Fg"
-	slog.Info(f)
-	slog.Info("Hello")                             // uppercase -> lowercase violation
-	slog.Info("ok...")                             // "..." violation
-	slog.Info("ok…")                               // unicode ellipsis violation
-	slog.Info("all good")                          // ok
-	slog.Info("why?!")                             // '!' or '?' violation
-	slog.Info("started 🚀")                         // emoji violation (если englishOnly выключишь)
-	slog.Info("user logged in", "password", "123") // sensitive (через поля)
+func (r *Repo) login(u User, z *zap.Logger) {
+	slog.Info("Login started")
+
+	r.users = append(r.users, &u)
+
+	slog.Info("auth successes with user", u.Email, u.Password, u.Token)
+
+	z.Info("login ended 🥳")
+}
+
+func main() {
+	z := zap.NewNop()
+	r := &Repo{}
+	u := User{Email: "a@b.c", Password: "p", Token: "t"}
+	r.login(u, z)
 }

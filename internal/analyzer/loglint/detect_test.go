@@ -147,7 +147,7 @@ func TestContainsSensitive_ScansAllArgs(t *testing.T) {
 		mustParseExpr(t, "y"),
 	}
 
-	pos, why, ok := containsSensitive(args, cfg)
+	pos, why, ok := containsSensitive(args, &cfg)
 	if !ok {
 		t.Fatalf("expected ok=true")
 	}
@@ -169,7 +169,7 @@ func TestContainsSensitive_NoMatch(t *testing.T) {
 		mustParseExpr(t, "zap.String(\"k\", v)"),
 	}
 
-	pos, why, ok := containsSensitive(args, cfg)
+	pos, why, ok := containsSensitive(args, &cfg)
 	if ok || pos != token.NoPos || why != "" {
 		t.Fatalf("expected no match, got ok=%v pos=%v why=%q", ok, pos, why)
 	}
@@ -325,7 +325,7 @@ func f() {
 `)
 	call := findFirstCall(t, f)
 
-	cfg := Config{
+	cfg := &Config{
 		LogAPIs: []LogAPI{
 			{
 				PackagePath:     "log/slog",
@@ -367,7 +367,7 @@ func f() {
 		t.Fatalf("logger.Info call not found")
 	}
 
-	cfg := Config{
+	cfg := &Config{
 		LogAPIs: []LogAPI{
 			{
 				ReceiverPkgPath: "log/slog",
@@ -395,7 +395,7 @@ func f() {
 `)
 	call := findFirstCall(t, f)
 
-	cfg := Config{
+	cfg := &Config{
 		LogAPIs: []LogAPI{
 			{
 				PackagePath:     "log/slog",
@@ -409,14 +409,13 @@ func f() {
 		t.Fatalf("expected false when method is not enabled")
 	}
 
-	// call.Fun not a selector
 	call2 := &ast.CallExpr{Fun: ast.NewIdent("Info")}
 	_, ok = isLogCall(pass, call2, cfg)
 	if ok {
 		t.Fatalf("expected false when Fun is not SelectorExpr")
 	}
 
-	cfg2 := Config{
+	cfg2 := &Config{
 		LogAPIs: []LogAPI{
 			{
 				PackagePath:     "log/slog",

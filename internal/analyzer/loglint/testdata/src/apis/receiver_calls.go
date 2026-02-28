@@ -1,8 +1,9 @@
 package apis
 
 import (
-	"log"
 	"log/slog"
+
+	"go.uber.org/zap"
 )
 
 func ReceiverCalls() {
@@ -16,13 +17,13 @@ func ReceiverCalls() {
 
 	l.Info("hello")
 
-	std := log.Default()
+	logger := zap.NewNop()
 
-	std.Print("Hello")  // want "loglint\\(lowercase\\)"
-	std.Print("ok...")  // want "loglint\\(no-emoji\\)"
-	std.Print("ok…")    // want "loglint\\(no-emoji\\)" "loglint\\(english-only\\)"
-	std.Print("привет") // want "loglint\\(english-only\\)"
-	std.Print("why?!")  // want "loglint\\(no-emoji\\)"
+	logger.Info("Hello") // want "loglint\\(lowercase\\)"
+	logger.Info("ok...") // want "loglint\\(no-emoji\\)"
+	logger.Info("ok…")   // want "loglint\\(no-emoji\\)" "loglint\\(english-only\\)"
+	logger.Info("пр")    // want "loglint\\(english-only\\)"
+	logger.Info("why?!") // want "loglint\\(no-emoji\\)"
 
-	std.Print("hello")
+	logger.Info("hello")
 }

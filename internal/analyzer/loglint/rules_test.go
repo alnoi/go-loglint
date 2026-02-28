@@ -8,21 +8,21 @@ import (
 
 // helpers
 
-func cfgAllOn() Config {
+func cfgAllOn() *Config {
 	var cfg Config
 	cfg.Rules.Lowercase = true
 	cfg.Rules.NoEmoji = true
 	cfg.Rules.EnglishOnly = true
 	cfg.Sensitive.Patterns = []string{"password", "token", "secret", "apikey"}
 	cfg.Sensitive.Allowlist = nil
-	return cfg
+	return &cfg
 }
 
-func cfgSensitive(patterns, allow []string) Config {
+func cfgSensitive(patterns, allow []string) *Config {
 	var cfg Config
 	cfg.Sensitive.Patterns = patterns
 	cfg.Sensitive.Allowlist = allow
-	return cfg
+	return &cfg
 }
 
 type anyExpr struct {

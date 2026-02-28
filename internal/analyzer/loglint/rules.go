@@ -38,7 +38,7 @@ type Violation struct {
 	Message string
 }
 
-func validateMessage(msg string, cfg Config) []Violation {
+func validateMessage(msg string, cfg *Config) []Violation {
 	var out []Violation
 
 	if cfg.Rules.Lowercase {
@@ -139,7 +139,7 @@ func isEmojiRune(r rune) bool {
 	return unicode.Is(emojiTable, r)
 }
 
-func checkNoSensitive(expr ast.Expr, cfg Config) (token.Pos, string, bool) {
+func checkNoSensitive(expr ast.Expr, cfg *Config) (token.Pos, string, bool) {
 	switch e := expr.(type) {
 
 	case *ast.Ident:
@@ -175,7 +175,7 @@ func checkNoSensitive(expr ast.Expr, cfg Config) (token.Pos, string, bool) {
 	return token.NoPos, "", false
 }
 
-func containsSensitiveWord(name string, cfg Config) bool {
+func containsSensitiveWord(name string, cfg *Config) bool {
 	s := strings.ToLower(name)
 
 	for _, a := range cfg.Sensitive.Allowlist {

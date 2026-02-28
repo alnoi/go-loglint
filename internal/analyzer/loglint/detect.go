@@ -27,7 +27,7 @@ func extractMessage(pass *analysis.Pass, args []ast.Expr) (string, token.Pos, bo
 	return "", token.NoPos, false
 }
 
-func containsSensitive(args []ast.Expr, cfg Config) (token.Pos, string, bool) {
+func containsSensitive(args []ast.Expr, cfg *Config) (token.Pos, string, bool) {
 	for _, arg := range args {
 		if pos, why, ok := checkNoSensitive(arg, cfg); ok {
 			return pos, why, true
@@ -79,7 +79,7 @@ func isNamedTypeFromPkg(t types.Type, pkgPath, typeName string) bool {
 	return obj.Pkg().Path() == pkgPath && obj.Name() == typeName
 }
 
-func isLogCall(pass *analysis.Pass, call *ast.CallExpr, cfg Config) (string, bool) {
+func isLogCall(pass *analysis.Pass, call *ast.CallExpr, cfg *Config) (string, bool) {
 	sel, ok := call.Fun.(*ast.SelectorExpr)
 	if !ok {
 		return "", false

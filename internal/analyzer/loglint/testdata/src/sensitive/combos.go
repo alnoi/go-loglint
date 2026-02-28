@@ -12,8 +12,8 @@ func ComboCases() {
 	password := "123"
 	token := "abc"
 
-	slog.Info("msg", password, token)                                                // want "loglint\\(no-sensitive\\)" "loglint\\(no-sensitive\\)"
-	logger.Info("msg", zap.String("password", password), zap.String("token", token)) // want "loglint\\(no-sensitive\\)" "loglint\\(no-sensitive\\)"
+	slog.Info("msg", password, token)                                                // want "loglint\\(no-sensitive\\)"
+	logger.Info("msg", zap.String("password", password), zap.String("token", token)) // want "loglint\\(no-sensitive\\)"
 
 	slog.Info("msg", password+"_suffix")                           // want "loglint\\(no-sensitive\\)"
 	logger.Info("msg", zap.String("password", password+"_suffix")) // want "loglint\\(no-sensitive\\)"

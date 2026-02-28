@@ -10,17 +10,10 @@ import (
 )
 
 type Config struct {
-	// Rules toggles (enable/disable). No extra parameters beyond that.
-	Rules RulesConfig `yaml:"rules"`
-
-	// Sensitive data detection (rule 4).
+	Rules     RulesConfig     `yaml:"rules"`
 	Sensitive SensitiveConfig `yaml:"sensitive"`
-
-	// What is considered a logging call.
-	LogAPIs []LogAPI `yaml:"logAPIs"`
-
-	// Exclusions for files/paths.
-	Exclude ExcludeConfig `yaml:"exclude"`
+	LogAPIs   []LogAPI        `yaml:"logAPIs"`
+	Exclude   ExcludeConfig   `yaml:"exclude"`
 }
 
 type RulesConfig struct {
@@ -31,37 +24,20 @@ type RulesConfig struct {
 }
 
 type SensitiveConfig struct {
-	// Substrings to match in identifiers/selectors (case-insensitive).
-	Patterns []string `yaml:"patterns"`
-
-	// If identifier/selectors contain any allowlisted substring, we skip reporting
-	// (case-insensitive). Useful to suppress intentional names like "tokenBucket".
+	Patterns  []string `yaml:"patterns"`
 	Allowlist []string `yaml:"allowlist"`
 }
 
 type ExcludeConfig struct {
-	// If file path contains any of these substrings, we skip the file.
 	Paths []string `yaml:"paths"`
-
-	// Glob patterns matched against the base filename (e.g. "*_gen.go", "*.pb.go").
 	Files []string `yaml:"files"`
 }
 
-// LogAPI describes how to recognize logging calls.
-// NOTE: Methods are stored as a slice for YAML friendliness and compiled into a set at runtime.
 type LogAPI struct {
-	// PackagePath matches package-level calls: <pkg>.<Method>(...)
-	// Example: "log/slog" for slog.Info(...)
-	PackagePath string `yaml:"packagePath"`
-
-	// ReceiverPkgPath + ReceiverType match method calls on a receiver:
-	// <recv>.<Method>(...) where <recv> has named type <ReceiverPkgPath>.<ReceiverType>.
-	// Example: ReceiverPkgPath="go.uber.org/zap", ReceiverType="Logger".
-	ReceiverPkgPath string `yaml:"receiverPkgPath"`
-	ReceiverType    string `yaml:"receiverType"`
-
-	// Methods is the list of method/function names considered logging for this API.
-	Methods []string `yaml:"methods"`
+	PackagePath     string   `yaml:"packagePath"`
+	ReceiverPkgPath string   `yaml:"receiverPkgPath"`
+	ReceiverType    string   `yaml:"receiverType"`
+	Methods         []string `yaml:"methods"`
 
 	compiledMethods map[string]struct{} `yaml:"-"`
 }
@@ -87,22 +63,15 @@ func (a *LogAPI) hasMethod(name string) bool {
 	return ok
 }
 
-func DefaultConfig() Config {
-	// Unified set of log method names we recognize across supported loggers.
-	// Safe to use as a superset: if a given logger doesn't have a method, there simply won't be such calls in AST.
+func DefaultConfig() *Config {
 	logMethods := []string{
-		// Common across many loggers
 		"Debug", "Info", "Warn", "Error",
-
-		// zap Logger variants
 		"DPanic", "Panic", "Fatal",
-
-		// zap SugaredLogger variants
 		"Debugf", "Infof", "Warnf", "Errorf", "DPanicf", "Panicf", "Fatalf",
 		"Debugw", "Infow", "Warnw", "Errorw", "DPanicw", "Panicw", "Fatalw",
 	}
 
-	return Config{
+	return &Config{
 		Rules: RulesConfig{
 			Lowercase:   true,
 			EnglishOnly: true,
@@ -116,14 +85,8 @@ func DefaultConfig() Config {
 			Allowlist: []string{},
 		},
 		LogAPIs: []LogAPI{
-			// slog package-level: slog.Info(...)
-			{PackagePath: "log/slog", Methods: logMethods},
-			// slog logger methods: logger.Info(...)
-			{ReceiverPkgPath: "log/slog", ReceiverType: "Logger", Methods: logMethods},
-
-			// zap logger methods: logger.Info(...)
+			{PackagePath: "log/slog", ReceiverPkgPath: "log/slog", ReceiverType: "Logger", Methods: logMethods},
 			{ReceiverPkgPath: "go.uber.org/zap", ReceiverType: "Logger", Methods: logMethods},
-			// zap sugared logger methods: sugar.Infof(...), sugar.Infow(...)
 			{ReceiverPkgPath: "go.uber.org/zap", ReceiverType: "SugaredLogger", Methods: logMethods},
 		},
 		Exclude: ExcludeConfig{
@@ -133,12 +96,10 @@ func DefaultConfig() Config {
 	}
 }
 
-// Normalize prepares config for runtime use (compile method sets, normalize patterns).
 func (c *Config) Normalize() {
 	for i := range c.LogAPIs {
 		c.LogAPIs[i].compile()
 	}
-	// Normalize patterns/allowlist by trimming and lowercasing (case-insensitive matching is done at use sites).
 	for i := range c.Sensitive.Patterns {
 		c.Sensitive.Patterns[i] = strings.ToLower(strings.TrimSpace(c.Sensitive.Patterns[i]))
 	}
@@ -153,11 +114,7 @@ func (c *Config) Normalize() {
 	}
 }
 
-// LoadConfigFile loads configuration from a YAML file and merges it over defaults.
-// Merge rules:
-// - zero-value booleans override defaults (so specify them explicitly in YAML)
-// - non-empty slices override defaults; empty/missing slices keep defaults.
-func LoadConfigFile(path string) (Config, error) {
+func LoadConfigFile(path string) (*Config, error) {
 	if strings.TrimSpace(path) == "" {
 		cfg := DefaultConfig()
 		cfg.Normalize()
@@ -166,10 +123,9 @@ func LoadConfigFile(path string) (Config, error) {
 
 	b, err := os.ReadFile(path)
 	if err != nil {
-		return Config{}, err
+		return nil, err
 	}
 
-	// Use a separate type to distinguish "missing slice" from "empty slice".
 	type fileCfg struct {
 		Rules     *RulesConfig     `yaml:"rules"`
 		Sensitive *SensitiveConfig `yaml:"sensitive"`
@@ -179,7 +135,7 @@ func LoadConfigFile(path string) (Config, error) {
 
 	var fc fileCfg
 	if err := yaml.Unmarshal(b, &fc); err != nil {
-		return Config{}, err
+		return nil, err
 	}
 
 	cfg := DefaultConfig()
@@ -188,7 +144,6 @@ func LoadConfigFile(path string) (Config, error) {
 		cfg.Rules = *fc.Rules
 	}
 	if fc.Sensitive != nil {
-		// Patterns/allowlist: if provided as non-empty, override; if empty, keep defaults.
 		if len(fc.Sensitive.Patterns) > 0 {
 			cfg.Sensitive.Patterns = fc.Sensitive.Patterns
 		}
@@ -200,7 +155,6 @@ func LoadConfigFile(path string) (Config, error) {
 		cfg.LogAPIs = fc.LogAPIs
 	}
 	if fc.Exclude != nil {
-		// Paths/files: if provided as non-empty, override; if empty, keep defaults.
 		if len(fc.Exclude.Paths) > 0 {
 			cfg.Exclude.Paths = fc.Exclude.Paths
 		}
@@ -209,9 +163,8 @@ func LoadConfigFile(path string) (Config, error) {
 		}
 	}
 
-	// Basic sanity: must have some log APIs to match on.
 	if len(cfg.LogAPIs) == 0 {
-		return Config{}, errors.New("config: logAPIs is empty")
+		return nil, errors.New("config: logAPIs is empty")
 	}
 
 	cfg.Normalize()

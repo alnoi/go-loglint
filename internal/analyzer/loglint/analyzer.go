@@ -21,6 +21,7 @@ var Analyzer = &analysis.Analyzer{
 	Run: run,
 }
 
+var overrideCfg *Config
 var configPath string
 
 func init() {
@@ -28,9 +29,15 @@ func init() {
 }
 
 func run(pass *analysis.Pass) (any, error) {
-	cfg, err := LoadConfigFile(configPath)
-	if err != nil {
-		return nil, err
+	var cfg *Config
+	if overrideCfg != nil {
+		cfg = overrideCfg
+	} else {
+		loaded, err := LoadConfigFile(configPath)
+		if err != nil {
+			return nil, err
+		}
+		cfg = loaded
 	}
 
 	excludedByName := buildExcludedFiles(pass, cfg)
@@ -68,7 +75,11 @@ func run(pass *analysis.Pass) (any, error) {
 	return nil, nil
 }
 
-func buildExcludedFiles(pass *analysis.Pass, cfg Config) map[string]bool {
+func SetConfig(cfg *Config) {
+	overrideCfg = cfg
+}
+
+func buildExcludedFiles(pass *analysis.Pass, cfg *Config) map[string]bool {
 	out := make(map[string]bool, len(pass.Files))
 	for _, f := range pass.Files {
 		tf := pass.Fset.File(f.Pos())

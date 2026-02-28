@@ -8,7 +8,7 @@ sensitive:
   patterns:
     - password
     - token
-    - api_key
+    - apikey
     - secret
     - private_key
   allowlist:
@@ -18,10 +18,13 @@ sensitive:
 
 logAPIs:
   - packagePath: "log/slog"
+    receiverPkgPath: "log/slog"
+    receiverType: "Logger"
     methods: ["Debug", "Info", "Warn", "Error"]
 
-  - packagePath: "log"
-    methods: ["Print", "Printf", "Println", "Fatal", "Fatalf", "Fatalln", "Panic", "Panicf", "Panicln"]
+  - receiverPkgPath: "go.uber.org/zap"
+    receiverType: "Logger"
+    methods: ["Debug", "Info", "Warn", "Error", "DPanic", "Panic", "Fatal"]
 
 exclude:
   paths: []

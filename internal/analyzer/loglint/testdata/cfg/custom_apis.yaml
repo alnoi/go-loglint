@@ -13,10 +13,22 @@ sensitive:
 
 logAPIs:
   - packagePath: "log/slog"
+    receiverPkgPath: "log/slog"
+    receiverType: "Logger"
     methods: ["Debug", "Info", "Warn", "Error"]
 
   - packagePath: "log"
+    receiverPkgPath: "log"
+    receiverType: "Logger"
     methods: ["Print", "Printf", "Println", "Fatal", "Fatalf", "Fatalln", "Panic", "Panicf", "Panicln"]
+
+  - receiverPkgPath: "go.uber.org/zap"
+    receiverType: "Logger"
+    methods: ["Debug", "Info", "Warn", "Error", "DPanic", "Panic", "Fatal"]
+
+  - receiverPkgPath: "go.uber.org/zap"
+    receiverType: "SugaredLogger"
+    methods: ["Debug", "Info", "Warn", "Error", "DPanic", "Panic", "Fatal", "Debugf", "Infof", "Warnf", "Errorf", "DPanicf", "Panicf", "Fatalf"]
 
 exclude:
   paths: []

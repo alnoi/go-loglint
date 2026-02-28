@@ -20,7 +20,13 @@ sensitive:
 
 logAPIs:
   - packagePath: "log/slog"
+    receiverPkgPath: "log/slog"
+    receiverType: "Logger"
     methods: ["Debug", "Info", "Warn", "Error"]
+
+  - receiverPkgPath: "go.uber.org/zap"
+    receiverType: "Logger"
+    methods: ["Debug", "Info", "Warn", "Error", "DPanic", "Panic", "Fatal"]
 
 exclude:
   paths: []
